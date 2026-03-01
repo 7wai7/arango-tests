@@ -1,0 +1,14 @@
+{
+  "name": "arango-tests",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.3"
+}
