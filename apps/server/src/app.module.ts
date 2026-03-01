@@ -3,13 +3,14 @@ import { ConfigModule, ConfigType } from "@nestjs/config";
 import { configSchema, databaseConfig } from './config';
 import { NarangoModule } from "@ronatilabs/narango";
 import { Agent } from "node:http";
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [`.env.${process.env.STAGE_NAME}`, ".env"],
-      validationSchema: configSchema,
+      validate: (config) => configSchema.parse(config),
       load: [databaseConfig],
     }),
     NarangoModule.registerAsync({
@@ -37,6 +38,7 @@ import { Agent } from "node:http";
       }),
       inject: [databaseConfig.KEY],
     }),
+    AuthModule,
   ],
 })
 export class AppModule { }

@@ -1,15 +1,13 @@
-import * as Joi from "joi";
 import { registerAs } from "@nestjs/config";
+import * as z from "zod";
 
-export const configSchema = Joi.object({
-  ARANGODB_URL: Joi.string().uri().required(),
-  ARANGODB_NAME: Joi.string().required(),
-  ARANGODB_USER: Joi.string().required(),
-  ARANGODB_PASSWORD: Joi.string().required(),
+export const configSchema = z.object({
+  ARANGODB_URL: z.url(),
+  ARANGODB_NAME: z.string(),
+  ARANGODB_USER: z.string(),
+  ARANGODB_PASSWORD: z.string(),
 
-  STAGE_NAME: Joi.string()
-    .valid("dev", "prod")
-    .required(),
+  STAGE_NAME: z.enum(["dev", "prod"]),
 });
 
 export const databaseConfig = registerAs("database", () => ({
