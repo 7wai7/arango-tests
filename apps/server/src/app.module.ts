@@ -4,6 +4,7 @@ import { configSchema, databaseConfig } from './config';
 import { NarangoModule } from "@ronatilabs/narango";
 import { Agent } from "node:http";
 import { AuthModule } from './auth/auth.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuthModule } from './auth/auth.module';
       inject: [databaseConfig.KEY],
     }),
     AuthModule,
+    PostsModule,
   ],
 })
 export class AppModule { }

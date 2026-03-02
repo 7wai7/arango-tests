@@ -17,3 +17,4 @@ export type UserProfile = {
     lastOnlineDate: string;
     avatarUrl: string;
 };
+

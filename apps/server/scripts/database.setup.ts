@@ -1,6 +1,7 @@
 import { Database } from "arangojs";
 import createUsers from "./users.js";
 import "dotenv/config";
+import createPosts from "./posts.js";
 
 const dbName = process.env.ARANGODB_NAME;
 let db = new Database({
@@ -21,6 +22,7 @@ async function main() {
 
     db = db.database(dbName);
     await createUsers(db);
+    await createPosts(db);
 }
 
 main()

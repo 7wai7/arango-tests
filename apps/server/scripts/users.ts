@@ -1,8 +1,4 @@
 import { Database } from "arangojs";
-import bcrypt from "bcrypt";
-import { v4 as uuid } from "uuid";
-
-const passwordHash = bcrypt.hashSync("qqqqqq", 10);
 
 export default async function createUsers(db: Database) {
   const usersCollection = db.collection("users");
@@ -12,18 +8,13 @@ export default async function createUsers(db: Database) {
 
   await usersCollection.ensureIndex({
     type: "persistent",
-    fields: ["email", "username"],
+    fields: ["email"],
     unique: true,
   });
 
-  await usersCollection.save({
-    _key: uuid(),
-    username: "Alice",
-    email: "alice@test.com",
-    passwordHash,
-    about: "",
-    lastOnlineDate: new Date().toISOString(),
-    avatarUrl: "",
-    createdAt: new Date().toISOString(),
+  await usersCollection.ensureIndex({
+    type: "persistent",
+    fields: ["username"],
+    unique: true,
   });
 }
