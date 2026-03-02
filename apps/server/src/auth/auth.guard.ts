@@ -5,7 +5,8 @@ import {
   UnauthorizedException,
   Injectable,
 } from "@nestjs/common";
-import { IS_PUBLIC_KEY } from "./public.decorator";
+import { IS_PUBLIC_KEY } from "./decorators/public.decorator";
+import { TokenUser } from "./auth.dto";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,23 +23,20 @@ export class AuthGuard implements CanActivate {
     }
 
     let request = context.switchToHttp().getRequest();
-    const b64TokenData = request.cookies.tokendata
 
-    if (!b64TokenData) {
-      throw new UnauthorizedException("Missing auth");
+    const cookie = request.cookies?.tokendata;
+
+    if (!cookie) {
+      throw new UnauthorizedException("Missing auth cookie");
     }
-
-    const rawTokenData = Buffer.from(b64TokenData, "base64").toString();
-    let tokenData;
 
     try {
-      tokenData = JSON.parse(rawTokenData);
-    } catch (error) {
-      console.error(error);
-      throw new UnauthorizedException("Malformed auth");
+      const raw = Buffer.from(cookie, "base64").toString();
+      const user: TokenUser = JSON.parse(raw);
+      request.tokenAuthData = user;
+      return true;
+    } catch {
+      throw new UnauthorizedException("Invalid auth token");
     }
-
-    request.tokenAuthData = tokenData;
-    return true;
   }
 }

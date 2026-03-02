@@ -5,8 +5,16 @@ import { NarangoModule } from "@ronatilabs/narango";
 import { Agent } from "node:http";
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
+import { APP_GUARD } from "@nestjs/core";
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,

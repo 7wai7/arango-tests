@@ -3,8 +3,10 @@ import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { LoginSchema, RegisterSchema } from './auth.schemas';
 import { encodeTokenData } from './auth.utils';
+import { Public } from './decorators/public.decorator';
 
 @Controller("auth")
+@Public()
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
@@ -20,7 +22,7 @@ export class AuthController {
     res.cookie("tokendata", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: false,
+      secure: process.env.NODE_,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 
