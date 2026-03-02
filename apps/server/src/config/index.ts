@@ -7,7 +7,7 @@ export const configSchema = z.object({
   ARANGODB_USER: z.string(),
   ARANGODB_PASSWORD: z.string(),
 
-  STAGE_NAME: z.enum(["dev", "prod"]),
+  STAGE_NAME: z.enum(["dev", "test", "prod"]),
 });
 
 export const databaseConfig = registerAs("database", () => ({

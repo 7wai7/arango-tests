@@ -16,7 +16,7 @@
     "test:watch": "jest --runInBand --watch",
     "test:cov": "jest --runInBand --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "STAGE_NAME=test jest --config ./test/jest-e2e.json",
     "db:setup": "DOTENV_CONFIG_PATH=.env.dev tsx -r dotenv/config scripts/database.setup.ts"
   },
   "dependencies": {

@@ -5,8 +5,8 @@ import {
 } from "@nestjs/common";
 import { NarangoService } from "@ronatilabs/narango";
 import * as bcrypt from "bcrypt";
-import { v4 as uuid } from "uuid";
 import { DocumentCollection } from "arangojs/collections";
+import crypto from "crypto";
 
 import { LoginDTO, RegisterDTO } from "./auth.schemas";
 import { UserDocument, UserProfile } from "../types";
@@ -25,30 +25,29 @@ export class AuthService {
         const cursor = await this.narango.db.query<UserDocument>(
             `
             FOR u IN users
-                FILTER u.email == @email
+                FILTER u.username == @username || u.email == @email
                 LIMIT 1
                 RETURN u
             `,
-            { email: dto.email },
+            { username: dto.username, email: dto.email },
         );
 
         const existing = await cursor.next();
 
         if (existing) {
-            throw new ConflictException("Email already registered");
+            throw new ConflictException("User already registered");
         }
 
         const passwordHash = await bcrypt.hash(dto.password, 10);
         const now = new Date().toISOString();
 
         const user: UserDocument = {
-            _key: uuid(),
+            _key: crypto.randomUUID(),
             username: dto.username,
             email: dto.email,
             passwordHash,
             about: "",
             lastOnlineDate: now,
-            isOnline: true,
             avatarUrl: dto.avatarUrl ?? "",
             createdAt: now,
         };
@@ -87,13 +86,11 @@ export class AuthService {
         // update online status
         await this.users.update(user._key, {
             lastOnlineDate: now,
-            isOnline: true,
         });
 
         return this.toUserProfile({
             ...user,
             lastOnlineDate: now,
-            isOnline: true,
         });
     }
 
@@ -105,7 +102,6 @@ export class AuthService {
             email: user.email,
             about: user.about,
             lastOnlineDate: user.lastOnlineDate,
-            isOnline: user.isOnline,
             avatarUrl: user.avatarUrl,
         };
     }

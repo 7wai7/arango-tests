@@ -1,4 +1,4 @@
-export {};
+export { };
 
 declare global {
   namespace NodeJS {
@@ -7,7 +7,7 @@ declare global {
       ARANGODB_NAME: string;
       ARANGODB_USER: string;
       ARANGODB_PASSWORD: string;
-      STAGE_NAME: "dev" | "prod";
+      STAGE_NAME: "dev" | "test" | "prod";
     }
   }
 }
