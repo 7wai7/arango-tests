@@ -23,7 +23,6 @@ export class AuthGuard implements CanActivate {
     }
 
     let request = context.switchToHttp().getRequest();
-
     const cookie = request.cookies?.tokendata;
 
     if (!cookie) {
@@ -33,7 +32,7 @@ export class AuthGuard implements CanActivate {
     try {
       const raw = Buffer.from(cookie, "base64").toString();
       const user: TokenUser = JSON.parse(raw);
-      request.tokenAuthData = user;
+      request.user = user;
       return true;
     } catch {
       throw new UnauthorizedException("Invalid auth token");

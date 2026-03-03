@@ -3,8 +3,6 @@ import { PostsService } from './posts.service';
 import { CreatePostSchema } from './dto/create-post.schema';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import type { CreatePostDTO } from './dto/posts.dto';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-import type { TokenUser } from 'src/auth/auth.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -12,7 +10,12 @@ export class PostsController {
 
   @Post()
   @UsePipes(new ZodValidationPipe(CreatePostSchema))
-  create(@CurrentUser() user: TokenUser, @Body() dto: CreatePostDTO) {
-    return this.postsService.create(user, dto);
+  create(@Req() req, @Body() dto: CreatePostDTO) {
+    return this.postsService.create(req.user, dto);
+  }
+
+  @Get('/feed')
+  feed(@Req() req) {
+    return this.postsService.feed(req.user, {});
   }
 }
