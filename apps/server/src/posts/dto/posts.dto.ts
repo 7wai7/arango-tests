@@ -6,7 +6,6 @@ export type CreatePostDTO = z.infer<typeof CreatePostSchema>
 
 export type PostDocument = {
     _key: string;
-    userId: string;
     content?: string;
 
     media?: {
@@ -20,6 +19,11 @@ export type PostDocument = {
     createdAt: string;
     updatedAt: string;
 };
+
+export type PostAuthorEdge = {
+    _from: string,
+    _to: string
+}
 
 export type Post = {
     id: string,

@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import crypto from "crypto";
-import { DocumentCollection } from 'arangojs/collections';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { NarangoService } from '@ronatilabs/narango';
-import { CreatePostDTO, PostDocument } from './dto/posts.dto';
+import { DocumentCollection } from 'arangojs/collections';
+import crypto from "crypto";
 import { TokenUser } from 'src/auth/auth.dto';
+import { CreatePostDTO, PostDocument } from './dto/posts.dto';
 
 @Injectable()
 export class PostsService {
@@ -20,26 +20,52 @@ export class PostsService {
       );
     }
 
-    const now = new Date().toISOString();
+    const trx = await this.narango.db.beginTransaction({
+      read: ["users"],
+      write: ["posts", "post_authors"],
+    });
 
-    const post: PostDocument = {
-      _key: crypto.randomUUID(),
+    try {
+      const now = new Date().toISOString();
 
-      userId: user.id,
+      const post: PostDocument = {
+        _key: crypto.randomUUID(),
+        content: dto.content,
+        media: dto.media,
+        likesCount: 0,
+        commentsCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
 
-      content: dto.content,
-      media: dto.media,
+      const userExists = await trx.step(() =>
+        this.narango.db
+          .collection("users")
+          .documentExists(user.id)
+      );
 
-      likesCount: 0,
-      commentsCount: 0,
+      if (!userExists) {
+        throw new BadRequestException("User not found");
+      }
 
-      createdAt: now,
-      updatedAt: now,
-    };
+      await trx.step(() =>
+        this.posts.save(post)
+      );
 
-    await this.posts.save(post);
+      await trx.step(() =>
+        this.narango.db.collection("post_authors").save({
+          _from: `users/${user.id}`,
+          _to: `posts/${post._key}`,
+        })
+      );
 
-    return this.toResponse(post);
+      await trx.commit();
+
+      return this.toResponse(post);
+    } catch (e) {
+      await trx.abort();
+      throw e;
+    }
   }
 
   async feed(
@@ -75,7 +101,6 @@ export class PostsService {
   private toResponse(post: PostDocument) {
     return {
       id: post._key,
-      userId: post.userId,
       content: post.content,
       media: post.media,
       likesCount: post.likesCount,
